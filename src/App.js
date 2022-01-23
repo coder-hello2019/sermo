@@ -38,9 +38,9 @@ function App() {
 // an exmple component!
 function Header() {
   return (
-    <div>
+    <div class="sidebar">
       <h1>Sermo</h1>
-      <h2><i>Like discord but worse</i></h2>
+      <p><i>Like discord but worse and with a pretentious Latin name :) </i></p>
     </div>
   );
 }
@@ -74,15 +74,21 @@ function Dash() {
   }, []) // useEffect ends here
 
   return(
-
-    <div>
-      {messages.map((message) => (
-        <div key={message.text}>
-          <h3>{message.text}</h3>
-          <p>{message.user} on {message.date}</p>
-        </div>
-      ))}
+    <div className='main-container'>
+      <div className='main'>
+        {messages.map((message) => (
+          <div className="message-container-hover">
+            <div className="message-wrapper">
+            <div key={message.text} className="message-content">
+                <h3 className="message-text">{message.text}</h3>
+                <p className="message-name">{message.user} on {message.date}</p>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
+    </div>
+
   );
 
 }
@@ -108,13 +114,11 @@ function New() {
 
   return (
 
-    <div>
-      <form id="new" onSubmit={submitMessage(newMsg, username)}>
-        <label for="newMsg">Say something nice:</label>
-        <input type="text" id="newMsg" autoComplete="off" onChange={(e) => updateMsg(e.target.value)}></input>
-        <label for="newMsg">What's your name:</label>
-        <input type="text" id="username" autoComplete="off" onChange={(e) => updateUsername(e.target.value)}></input>
-        <button type="submit" form="new" value="Submit">Submit</button>
+    <div className="send-message-container">
+      <form id="new" className ="form-input" onSubmit={submitMessage(newMsg, username)}>
+        <input className="input-text" type="text" placeholder="Say something nice :)" id="newMsg" autoComplete="off" onChange={(e) => updateMsg(e.target.value)}></input>
+        <input type="text" placeholder="Your name" id="username" autoComplete="off" onChange={(e) => updateUsername(e.target.value)}></input>
+        <button type="submit" className="send-button" form="new" value="Submit">Send</button>
       </form>
     </div>
   );
