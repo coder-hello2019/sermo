@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 
 // FIREBASE CONFIGS
 import { initializeApp } from 'firebase/app';
-import { getDatabase, ref, onValue } from "firebase/database";
+import { getDatabase, ref, onValue, set } from "firebase/database";
 //import { getFirestore, collection, getDocs } from 'firebase/firestore/lite';
 
 
@@ -24,11 +24,14 @@ const database = getDatabase();
 
 
 function App() {
+  const [lastID, setCount] = useState(0)
+  const increment = (c) => setCount(c)
+
   return (
     <div className="App">
       <Header></Header>
-      <New></New>
-      <Dash></Dash>
+      <New lastID={lastID}></New>
+      <Dash increment={increment}></Dash>
     </div>
   );
 }
@@ -45,7 +48,7 @@ function Header() {
 }
 
 
-function Dash() {
+function Dash({lastID, increment}) {
   const [messages, setMessages] = useState([]);
 
   const db = getDatabase();
@@ -55,13 +58,20 @@ function Dash() {
     onValue(dbRef, (snapshot) => {
       console.log("onValue called")
       const data = snapshot.val();
+
+      var latestID = 0;
           
       var newMessages = messages.splice();
       const len = Object.keys(data).length;
-      for(var i = 0; i < len; i++){
-        newMessages.push(data[i].text);
+      for(var i = 1; i < len + 1; i++){
+        newMessages.push(data[i]);
+        if(i == len){
+          latestID = i;
+        }
       }
       setMessages(newMessages);
+      increment(latestID);
+
     }) // onValue ends here
   }, []) // useEffect ends here
 
@@ -69,20 +79,29 @@ function Dash() {
 
     <div>
       {messages.map((message) => (
-          <h3>{message}</h3>
+        <div key={message.text}>
+          <h3>{message.text}</h3>
+          <p>{message.user} on {message.date}</p>
+        </div>
       ))}
       </div>
   );
 
 }
 
+// function for submitting new messages to the server
+const submitMessage = (event) => {
+  event.preventDefault();
+  console.log("fake-submitte msg!");
+
+}
+
 // an exmple component!
 function New() {
 
-
   return (
     <div>
-      <form id="new">
+      <form id="new" onSubmit={submitMessage}>
         <label for="newMsg">Say something nice:</label>
         <input type="text" id="newMsg"></input>
         <button type="submit" form="new" value="Submit">Submit</button>
