@@ -90,18 +90,30 @@ function Dash({lastID, increment}) {
 }
 
 // function for submitting new messages to the server
-const submitMessage = (event) => {
-  event.preventDefault();
-  console.log("fake-submitte msg!");
+const submitMessage = (lastID, messageText) => {
+  return event => {
+    event.preventDefault();
 
+    const db = getDatabase();
+    set(ref(db, 'testing/'), {
+      [lastID.lastID + 1]: {
+        text: messageText,
+        user: "jedcal",
+        date: "23/01/2022"
+      }
+    });
+
+    // console.log("fake-submitte msg!");
+    // console.log(lastID.lastID);
+  }
 }
 
 // an exmple component!
-function New() {
+function New(lastID) {
 
   return (
     <div>
-      <form id="new" onSubmit={submitMessage}>
+      <form id="new" onSubmit={submitMessage(lastID, "woopla")}>
         <label for="newMsg">Say something nice:</label>
         <input type="text" id="newMsg"></input>
         <button type="submit" form="new" value="Submit">Submit</button>
