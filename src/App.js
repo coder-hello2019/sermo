@@ -1,5 +1,5 @@
 import './App.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 
 // FIREBASE CONFIGS
@@ -24,14 +24,12 @@ const database = getDatabase();
 
 
 function App() {
-  const [lastID, setCount] = useState(0)
-  const increment = (c) => setCount(c)
 
   return (
     <div className="App">
       <Header></Header>
-      <New lastID={lastID}></New>
-      <Dash increment={increment}></Dash>
+      <New></New>
+      <Dash></Dash>
     </div>
   );
 }
@@ -48,29 +46,29 @@ function Header() {
 }
 
 
-function Dash({lastID, increment}) {
+function Dash() {
   const [messages, setMessages] = useState([]);
 
   const db = getDatabase();
-  const dbRef = ref(db, 'messages')
+  const dbRef = ref(db, 'newMessages')
 
   useEffect(() => {
     onValue(dbRef, (snapshot) => {
       console.log("onValue called")
       const data = snapshot.val();
 
-      var latestID = 0;
+      console.log(data)
           
       var newMessages = messages.splice();
-      const len = Object.keys(data).length;
-      for(var i = 1; i < len + 1; i++){
-        newMessages.push(data[i]);
-        if(i == len){
-          latestID = i;
-        }
+      // const len = Object.keys(data).length;
+      // for(var i = 1; i < len + 1; i++){
+      //   newMessages.push(data[i]);
+      // }
+
+      for(const item in data){
+        newMessages.push(data[item]);
       }
       setMessages(newMessages);
-      increment(latestID);
 
     }) // onValue ends here
   }, []) // useEffect ends here
@@ -90,30 +88,32 @@ function Dash({lastID, increment}) {
 }
 
 // function for submitting new messages to the server
-const submitMessage = (lastID, messageText) => {
+const submitMessage = (messageText, username) => {
   return event => {
     event.preventDefault();
 
     const db = getDatabase();
     push(ref(db, 'newMessages/'), {
         text: messageText,
-        user: "jedcal",
+        user: username,
         date: "23/01/2022"
     });
-
-    // console.log("fake-submitte msg!");
-    // console.log(lastID.lastID);
   }
 }
 
 // an exmple component!
-function New(lastID) {
+function New() {
+  const [newMsg, updateMsg] = useState("");
+  const [username, updateUsername] = useState("");
 
   return (
+
     <div>
-      <form id="new" onSubmit={submitMessage(lastID, "M83")}>
+      <form id="new" onSubmit={submitMessage(newMsg, username)}>
         <label for="newMsg">Say something nice:</label>
-        <input type="text" id="newMsg"></input>
+        <input type="text" id="newMsg" autoComplete="off" onChange={(e) => updateMsg(e.target.value)}></input>
+        <label for="newMsg">What's your name:</label>
+        <input type="text" id="username" autoComplete="off" onChange={(e) => updateUsername(e.target.value)}></input>
         <button type="submit" form="new" value="Submit">Submit</button>
       </form>
     </div>
