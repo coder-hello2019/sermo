@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 
 // FIREBASE CONFIGS
 import { initializeApp } from 'firebase/app';
-import { getDatabase, ref, onValue, set } from "firebase/database";
+import { getDatabase, ref, onValue, set, push } from "firebase/database";
 //import { getFirestore, collection, getDocs } from 'firebase/firestore/lite';
 
 
@@ -95,12 +95,10 @@ const submitMessage = (lastID, messageText) => {
     event.preventDefault();
 
     const db = getDatabase();
-    set(ref(db, 'testing/'), {
-      [lastID.lastID + 1]: {
+    push(ref(db, 'newMessages/'), {
         text: messageText,
         user: "jedcal",
         date: "23/01/2022"
-      }
     });
 
     // console.log("fake-submitte msg!");
@@ -113,7 +111,7 @@ function New(lastID) {
 
   return (
     <div>
-      <form id="new" onSubmit={submitMessage(lastID, "woopla")}>
+      <form id="new" onSubmit={submitMessage(lastID, "M83")}>
         <label for="newMsg">Say something nice:</label>
         <input type="text" id="newMsg"></input>
         <button type="submit" form="new" value="Submit">Submit</button>
