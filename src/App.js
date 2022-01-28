@@ -2,9 +2,12 @@ import './App.css';
 import { useEffect, useState, useRef } from 'react';
 
 
+
 // FIREBASE CONFIGS
 import { initializeApp } from 'firebase/app';
-import { getDatabase, ref, onValue, set, push } from "firebase/database";
+import { getDatabase, ref, onValue, push } from "firebase/database";
+import { GoogleAuthProvider, getAuth, signInWithPopup, SignInMethod } from "firebase/auth";
+
 //import { getFirestore, collection, getDocs } from 'firebase/firestore/lite';
 
 
@@ -24,28 +27,52 @@ const database = getDatabase();
 
 
 function App() {
+  const [user, setUser] = useState(null);
 
-  return (
-    <div className="App">
-      <Header></Header>
-      <New></New>
-      <Dash></Dash>
-    </div>
-  );
+  if (user) {
+    return(
+      <div className="App">
+        <Sidebar></Sidebar>
+        <New></New>
+        <Dash></Dash>
+      </div>
+    )
+  } 
+  else {
+    return(
+      <div className="App">
+        <Sidebar></Sidebar>
+        <Dash></Dash>
+        <SignIn user={user} onUserChange={setUser}></SignIn>
+      </div>
+    )
+  }
 }
 
 
 // an exmple component!
-function Header() {
+function Sidebar() {
   return (
     <div class="sidebar">
       <h1>Sermo</h1>
-      <p><i>Like discord but worse and with a pretentious Latin name :) </i></p>
+      <p class="small-text"><i>Like discord but worse and with a pretentious Latin name :) </i></p>
     </div>
   );
 }
 
+// component for signing in
+function SignIn({user, onUserChange}) {
 
+  return(
+    <div className="paywall">
+      <h3>Sign in with Google</h3>
+      <p className="auth-button"><a className='auth-button' href="#" onClick={() => googleSignIn(user, onUserChange)}>Sign in with Google</a></p>
+    </div>
+  )
+}
+
+
+// to display the main view with all the messages in the database
 function Dash() {
   const [messages, setMessages] = useState([]);
 
@@ -93,6 +120,34 @@ function Dash() {
 
 }
 
+const googleSignIn = (user, setUser) => {
+
+  const provider = new GoogleAuthProvider();
+  const auth = getAuth();
+
+  signInWithPopup(auth, provider)
+  .then((result) => {
+    // This gives you a Google Access Token. You can use it to access the Google API.
+    const credential = GoogleAuthProvider.credentialFromResult(result);
+    const token = credential.accessToken;
+    // The signed-in user info.
+    const newUser = result.user;
+    setUser(newUser)
+
+    // ...
+  }).catch((error) => {
+    // Handle Errors here.
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    // The email of the user's account used.
+    const email = error.email;
+    // The AuthCredential type that was used.
+    const credential = GoogleAuthProvider.credentialFromError(error);
+    return(null);
+    // ...
+  }); // signInWithPopup ends here
+}
+
 // function for submitting new messages to the server
 const submitMessage = (messageText, username) => {
   return event => {
@@ -107,7 +162,7 @@ const submitMessage = (messageText, username) => {
   }
 }
 
-// an exmple component!
+// component for sending new messages
 function New() {
   const [newMsg, updateMsg] = useState("");
   const [username, updateUsername] = useState("");

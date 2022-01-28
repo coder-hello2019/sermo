@@ -12,6 +12,10 @@
     padding-top: 20px;
 }
 
+.small-text {
+    font-size: 16px;
+}
+
 .App {
     margin-left: 200px;
     font-size: 28px;
@@ -74,6 +78,9 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     background: #37393e;
+    overflow-x: hidden;
+    position: relative;
+    display: block;
 
 }
 
@@ -128,4 +135,30 @@ input[type=text] {
     border-radius: 4px;
     cursor: pointer;
     margin: 8px 0 8px 10px;
+}
+
+.paywall {
+    background: #000;
+    z-index: 999999;
+    color: #fff;
+    border-radius: 5px;
+    text-align: center;
+    padding: 30px;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    font-weight: 700;
+    -webkit-transform: translate(-50%,-50%);
+    transform: translate(-50%,-50%);
+    box-shadow: 0 4px 8px 0 rgb(0 0 0 / 50%), 0 6px 20px 0 rgb(0 0 0 / 30%);
+}
+
+.auth-button {
+    border: none;
+    background: none;
+    color: #fff;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 18px;
+    margin-top: 5px;
 }
