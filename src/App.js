@@ -6,7 +6,7 @@ import { useEffect, useState, useRef } from 'react';
 // FIREBASE CONFIGS
 import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, onValue, push } from "firebase/database";
-import { GoogleAuthProvider, getAuth, signInWithPopup, SignInMethod } from "firebase/auth";
+import { GoogleAuthProvider, getAuth, signInWithPopup, signOut } from "firebase/auth";
 import { stringify } from '@firebase/util';
 
 //import { getFirestore, collection, getDocs } from 'firebase/firestore/lite';
@@ -33,7 +33,7 @@ function App() {
   if (user) {
     return(
       <div className="App">
-        <Sidebar userName={user.displayName}></Sidebar>
+        <Sidebar userName={user.displayName} user={user} onUserChange={setUser}></Sidebar>
         <New userName={user.displayName}></New>
         <Dash></Dash>
       </div>
@@ -53,14 +53,38 @@ function App() {
 
 
 // an exmple component!
-function Sidebar({userName}) {
-  return (
-    <div className="sidebar">
-      <h1>Sermo</h1>
-      <p className="small-text"><i>Like discord but worse and with a pretentious Latin name :) </i></p>
-      <p>{userName}</p>
-    </div>
-  );
+function Sidebar({userName, user, onUserChange}) {
+  if (userName != null) {
+    return (
+      <div className="sidebar">
+        <h1>Sermo</h1>
+        <p className="small-text"><i>Like discord but worse and with a pretentious Latin name :) </i></p>
+        <p>{userName}</p>
+        <button className="send-button" onClick={() => googleSignOut(user, onUserChange)}>Sign out</button>
+      </div>
+    );
+  }
+  else {
+    return (
+      <div className="sidebar">
+        <h1>Sermo</h1>
+        <p className="small-text"><i>Like discord but worse and with a pretentious Latin name :) </i></p>
+      </div>
+    );
+  }
+  
+}
+
+const googleSignOut = (user, onUserChange) => {
+  const auth = getAuth();
+  signOut(auth).then(() => {
+    onUserChange(null);
+    console.log("signout successful");
+  // Sign-out successful.
+  }).catch((error) => {
+  // An error happened.
+    console.log(error);
+  });
 }
 
 // component for signing in
@@ -90,10 +114,6 @@ function Dash() {
       console.log(data)
           
       var newMessages = messages.splice();
-      // const len = Object.keys(data).length;
-      // for(var i = 1; i < len + 1; i++){
-      //   newMessages.push(data[i]);
-      // }
 
       for(const item in data){
         newMessages.push(data[item]);
@@ -111,7 +131,7 @@ function Dash() {
             <div className="message-wrapper">
             <div key={message.text} className="message-content">
                 <h3 className="message-text">{message.text}</h3>
-                <p className="message-name">{message.user} on {message.date}</p>
+                <p className="message-name">{message.user} on<i>{message.date}</i></p>
               </div>
             </div>
           </div>
@@ -155,12 +175,13 @@ const googleSignIn = (user, setUser) => {
 const submitMessage = (messageText, username) => {
   return event => {
     event.preventDefault();
+    let options = { year: 'numeric', month: 'numeric', day: 'numeric' };
 
     const db = getDatabase();
     push(ref(db, 'newMessages/'), {
         text: messageText,
         user: username,
-        date: "23/01/2022"
+        date: Date().toLocaleString('en-US', options).slice(0, 24)
     });
   }
 }
@@ -168,15 +189,15 @@ const submitMessage = (messageText, username) => {
 // component for sending new messages
 function New({userName}) {
   const [newMsg, updateMsg] = useState("");
-  const [username, updateUsername] = useState("");
+  // const [username, updateUsername] = useState("");
 
   if (userName != null) {
     return (
 
       <div className="send-message-container">
-        <form id="new" className ="form-input" onSubmit={submitMessage(newMsg, username)}>
+        <form id="new" className ="form-input" onSubmit={submitMessage(newMsg, userName)}>
           <input className="input-text" type="text" placeholder="Say something nice :)" id="newMsg" autoComplete="off" onChange={(e) => updateMsg(e.target.value)}></input>
-          <input type="text" placeholder="Your name" id="username" autoComplete="off" onChange={(e) => updateUsername(e.target.value)}></input>
+          {/* <input type="text" placeholder="Your name" id="username" autoComplete="off" onChange={(e) => updateUsername(e.target.value)}></input> */}
           <button type="submit" className="send-button" form="new" value="Submit">Send</button>
         </form>
       </div>
