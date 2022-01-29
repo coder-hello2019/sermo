@@ -7,6 +7,7 @@ import { useEffect, useState, useRef } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, onValue, push } from "firebase/database";
 import { GoogleAuthProvider, getAuth, signInWithPopup, SignInMethod } from "firebase/auth";
+import { stringify } from '@firebase/util';
 
 //import { getFirestore, collection, getDocs } from 'firebase/firestore/lite';
 
@@ -32,8 +33,8 @@ function App() {
   if (user) {
     return(
       <div className="App">
-        <Sidebar></Sidebar>
-        <New></New>
+        <Sidebar userName={user.displayName}></Sidebar>
+        <New userName={user.displayName}></New>
         <Dash></Dash>
       </div>
     )
@@ -41,7 +42,8 @@ function App() {
   else {
     return(
       <div className="App">
-        <Sidebar></Sidebar>
+        <Sidebar userName={null}></Sidebar>
+        <New userName={null}></New>
         <Dash></Dash>
         <SignIn user={user} onUserChange={setUser}></SignIn>
       </div>
@@ -51,11 +53,12 @@ function App() {
 
 
 // an exmple component!
-function Sidebar() {
+function Sidebar({userName}) {
   return (
-    <div class="sidebar">
+    <div className="sidebar">
       <h1>Sermo</h1>
-      <p class="small-text"><i>Like discord but worse and with a pretentious Latin name :) </i></p>
+      <p className="small-text"><i>Like discord but worse and with a pretentious Latin name :) </i></p>
+      <p>{userName}</p>
     </div>
   );
 }
@@ -163,20 +166,32 @@ const submitMessage = (messageText, username) => {
 }
 
 // component for sending new messages
-function New() {
+function New({userName}) {
   const [newMsg, updateMsg] = useState("");
   const [username, updateUsername] = useState("");
 
-  return (
+  if (userName != null) {
+    return (
 
-    <div className="send-message-container">
-      <form id="new" className ="form-input" onSubmit={submitMessage(newMsg, username)}>
-        <input className="input-text" type="text" placeholder="Say something nice :)" id="newMsg" autoComplete="off" onChange={(e) => updateMsg(e.target.value)}></input>
-        <input type="text" placeholder="Your name" id="username" autoComplete="off" onChange={(e) => updateUsername(e.target.value)}></input>
-        <button type="submit" className="send-button" form="new" value="Submit">Send</button>
-      </form>
-    </div>
-  );
+      <div className="send-message-container">
+        <form id="new" className ="form-input" onSubmit={submitMessage(newMsg, username)}>
+          <input className="input-text" type="text" placeholder="Say something nice :)" id="newMsg" autoComplete="off" onChange={(e) => updateMsg(e.target.value)}></input>
+          <input type="text" placeholder="Your name" id="username" autoComplete="off" onChange={(e) => updateUsername(e.target.value)}></input>
+          <button type="submit" className="send-button" form="new" value="Submit">Send</button>
+        </form>
+      </div>
+    );
+  }
+  else {
+    return(
+      <div className='send-message-container'>
+        <h2>Please sign in to access the chat</h2>
+      </div>
+    );
+  }
+
+  
+  
 }
 
 
