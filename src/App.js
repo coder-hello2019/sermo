@@ -129,6 +129,7 @@ function Dash() {
         {messages.map((message) => (
           <div className="message-container-hover">
             <div className="message-wrapper">
+            <img src={message.picURL}></img>
             <div key={message.text} className="message-content">
                 <h3 className="message-text">{message.text}</h3>
                 <p className="message-name">{message.user} on<i>{message.date}</i></p>
